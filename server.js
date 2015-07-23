@@ -1,9 +1,12 @@
 var Hapi = require('hapi'),
-    CardStore = require('./lib/cardStore');
+    CardStore = require('./lib/cardStore'),
+    UserStore = require('./lib/userStore');
 
 // Create a server with a host and port
 var server = new Hapi.Server();
+
 CardStore.initialize();
+UserStore.initialize();
 
 server.connection({
     host: '127.0.0.1',
@@ -54,6 +57,18 @@ server.register({
     }
 }, function(err) {
     console.log(err);
+});
+
+server.register(require('hapi-auth-cookie'), function(err) {
+    if (err) console.log(err);
+
+    server.auth.strategy('default', 'cookie', {
+        password: 'my-password',
+        redirectTo: '/login',
+        isSecure: false
+    });
+
+    server.auth.default('default');
 });
 
 server.ext('onPreResponse', function(req, res) {
