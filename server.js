@@ -10,8 +10,7 @@ UserStore.initialize();
 
 server.connection({
     host: '127.0.0.1',
-    // port: Number(process.env.PORT)
-    port: 8000
+    port: parseInt(process.env.PORT, 10) || 8000,
 });
 
 server.views({
@@ -65,7 +64,8 @@ server.register(require('hapi-auth-cookie'), function(err) {
     server.auth.strategy('default', 'cookie', {
         password: 'my-password',
         redirectTo: '/login',
-        isSecure: false
+        isSecure: false,
+        ttl: 24 * 60 * 60 * 1000 // Set session to 1 day
     });
 
     server.auth.default('default');
@@ -83,3 +83,5 @@ server.route(require('./lib/routes'));
 server.start(function() {
     console.log('Listening on ' + server.info.uri)
 });
+
+module.exports = server;
